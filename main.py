@@ -51,8 +51,8 @@ if __name__ == "__main__":
 
     # spawn all agents as seperate processes for maximum processing efficiency
     agentthreads = []
-    for position in xrange(1, NUM_PLAYERS+1):
-        print "  Spawning agent %d..." % position
+    for position in range(1, NUM_PLAYERS+1):
+        print(f"  Spawning agent {position}...")
 
         at = mp.Process(target=spawn_agent, args=(TEAM_NAME, position))
         at.daemon = True
@@ -60,27 +60,27 @@ if __name__ == "__main__":
 
         agentthreads.append(at)
 
-    print "Spawned %d agents." % len(agentthreads)
-    print
-    print "Playing soccer..."
+    print(f"Spawned {len(agentthreads)} agents.")
+    print()
+    print("Playing soccer...")
 
     # wait until killed to terminate agent processes
     try:
         while 1:
             time.sleep(0.05)
     except KeyboardInterrupt:
-        print
-        print "Killing agent threads..."
+        print()
+        print("Killing agent threads...")
 
         # terminate all agent processes
         count = 0
         for at in agentthreads:
-            print "  Terminating agent %d..." % count
+            print("  Terminating agent {count}...")
             at.terminate()
             count += 1
-        print "Killed %d agent threads." % (count - 1)
+        print("Killed {(count - 1)} agent threads.")
 
-        print
-        print "Exiting."
+        print()
+        print("Exiting.")
         sys.exit()
 

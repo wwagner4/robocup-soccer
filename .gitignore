@@ -21,6 +21,7 @@ data/*.json
 *.swp
 push.sh
 raw_client_out
+.idea
 
 # System files
 .DS_Store
