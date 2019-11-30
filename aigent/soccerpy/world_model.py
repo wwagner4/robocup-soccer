@@ -1,10 +1,10 @@
 import math
 import random
 
-import message_parser
-import sp_exceptions
 import game_object
 
+
+# noinspection PyTypeChecker
 class WorldModel:
     """
     Holds and updates the model of the world as known from current and past
@@ -40,7 +40,7 @@ class WorldModel:
 
         def __init__(self):
             raise NotImplementedError("Don't instantiate a PlayModes class,"
-                    " access it statically through WorldModel instead.")
+                                      " access it statically through WorldModel instead.")
 
     class RefereeMessages:
         """
@@ -65,7 +65,7 @@ class WorldModel:
 
         def __init__(self):
             raise NotImplementedError("Don't instantiate a RefereeMessages class,"
-                    " access it statically through WorldModel instead.")
+                                      " access it statically through WorldModel instead.")
 
     def __init__(self, action_handler):
         """
@@ -168,7 +168,7 @@ class WorldModel:
 
             # generate points every 'angle_step' degrees around each flag,
             # discarding those off-field.
-            for i in xrange(0, 360, angle_step):
+            for i in range(0, 360, angle_step):
                 dy = f.distance * math.sin(math.radians(i))
                 dx = f.distance * math.cos(math.radians(i))
 
@@ -206,7 +206,7 @@ class WorldModel:
 
         # generate initial random centers, ignoring identical ones
         centers = set([])
-        for i in xrange(int(math.sqrt(len(points) / 2))):
+        for i in range(int(math.sqrt(len(points) / 2))):
             # a random coordinate somewhere within the field boundaries
             rand_center = (random.randint(-55, 55), random.randint(-35, 35))
             centers.add(rand_center)
@@ -214,8 +214,8 @@ class WorldModel:
         # cluster for some iterations before the latest result
         latest = {}
         cur = {}
-        for i in xrange(num_cluster_iterations):
-            # initialze cluster lists
+        for i in range(num_cluster_iterations):
+            # initialize cluster lists
             for c in centers:
                 cur[c] = []
 
@@ -223,7 +223,7 @@ class WorldModel:
             for p in points:
                 # get a list of (distance to center, center coords) tuples
                 c_dists = map(lambda c: (self.euclidean_distance(c, p), c),
-                             centers)
+                              centers)
 
                 # find the smallest tuple's c (second item)
                 nearest_center = min(c_dists)[1]
@@ -268,7 +268,7 @@ class WorldModel:
             y1 = point1[1]
             x2 = point2[0]
             y2 = point2[1]
-    
+
             return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
         except:
             return 200
@@ -295,7 +295,7 @@ class WorldModel:
             a = math.degrees(math.atan2(dy, dx))
             if a < 0:
                 a = 360 + a
-    
+
             return a
         except:
             return 0
@@ -413,6 +413,7 @@ class WorldModel:
 
         # get relative direction to point from body, since kicks are relative to
         # body direction.
+        rel_point_dir = 0.0
         if self.abs_body_dir is not None:
             rel_point_dir = self.abs_body_dir - abs_point_dir
 
@@ -424,10 +425,10 @@ class WorldModel:
         dist_ratio = point_dist / max_kick_dist
 
         # find the required power given ideal conditions, then add scale up by
-        # difference bewteen actual aceivable power and maxpower.
+        # difference between actual achievable power and maxpower.
         required_power = dist_ratio * self.server_parameters.maxpower
         effective_power = self.get_effective_kick_power(self.ball,
-                required_power)
+                                                        required_power)
         required_power += 1 - (effective_power / required_power)
 
         # add more power!
@@ -450,7 +451,7 @@ class WorldModel:
         # first we get effective kick power:
         # limit kick_power to be between minpower and maxpower
         kick_power = max(min(power, self.server_parameters.maxpower),
-                self.server_parameters.minpower)
+                         self.server_parameters.minpower)
 
         # scale it by the kick_power rate
         kick_power *= self.server_parameters.kick_power_rate
@@ -546,7 +547,7 @@ class WorldModel:
         # holds tuples of (player dist to point, player)
         distances = []
         for p in self.players:
-            # skip enemy and unknwon players
+            # skip enemy and unknown players
             if p.side == self.side:
                 # find their absolute position
                 p_coords = self.get_object_absolute_coords(p)
@@ -573,7 +574,7 @@ class WorldModel:
         for p in self.players:
             # print p.side
             # print p.side == self.side
-            # skip enemy and unknwon players
+            # skip enemy and unknown players
             if p.side == self.side:
                 # find their absolute position
                 p_coords = self.get_object_absolute_coords(p)
@@ -597,7 +598,7 @@ class WorldModel:
         # holds tuples of (player dist to point, player)
         distances = []
         for p in self.players:
-            # skip enemy and unknwon players
+            # skip enemy and unknown players
             if p.side != self.side:
                 # find their absolute position
                 p_coords = self.get_object_absolute_coords(p)
@@ -619,8 +620,10 @@ class WorldModel:
 
         # holds tuples of (player dist to point, player)
         for p in self.players:
-            # skip enemy and unknwon players
-            if p.side == self.side and self.euclidean_distance(self.get_object_absolute_coords(self.ball), self.get_object_absolute_coords(p)) < self.server_parameters.kickable_margin:
+            # skip enemy and unknown players
+            if p.side == self.side and self.euclidean_distance(self.get_object_absolute_coords(self.ball),
+                                                               self.get_object_absolute_coords(
+                                                                   p)) < self.server_parameters.kickable_margin:
                 return True
             else:
                 continue
@@ -635,8 +638,10 @@ class WorldModel:
 
         # holds tuples of (player dist to point, player)
         for p in self.players:
-            # skip enemy and unknwon players
-            if p.side != self.side and self.euclidean_distance(self.get_object_absolute_coords(self.ball), self.get_object_absolute_coords(p)) < self.server_parameters.kickable_margin:
+            # skip enemy and unknown players
+            if p.side != self.side and self.euclidean_distance(self.get_object_absolute_coords(self.ball),
+                                                               self.get_object_absolute_coords(
+                                                                   p)) < self.server_parameters.kickable_margin:
                 return True
             else:
                 continue
@@ -663,6 +668,7 @@ class WorldModel:
         """
 
         self.ah.turn(obj.direction)
+
 
 class ServerParameters:
     """
@@ -703,7 +709,7 @@ class ServerParameters:
         self.coach_w_referee = 0
         self.connect_wait = 300
         self.control_radius = 2
-        self.dash_power_rate =0.006
+        self.dash_power_rate = 0.006
         self.drop_ball_time = 200
         self.effort_dec = 0.005
         self.effort_dec_thr = 0.3
@@ -840,4 +846,3 @@ class ServerParameters:
         self.wind_none = 0
         self.wind_rand = 0
         self.wind_random = 0
-

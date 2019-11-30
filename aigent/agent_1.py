@@ -2,9 +2,9 @@
 
 # The striker agent
 
-import random
-from soccerpy.agent import Agent as baseAgent
-from soccerpy.world_model import WorldModel
+from agent import Agent as baseAgent
+from world_model import WorldModel
+
 
 # methods from actionHandler are
 # CATCH = "catch"(rel_direction)
@@ -22,6 +22,7 @@ from soccerpy.world_model import WorldModel
 # mdp
 # 
 
+# noinspection PyTypeChecker
 class Agent(baseAgent):
     """
     The extended Agent class with specific heuritics
@@ -39,7 +40,7 @@ class Agent(baseAgent):
 
         # take places on the field by uniform number
         if not self.in_kick_off_formation:
-            print "the side is", self.wm.side
+            print(f"the side is {self.wm.side}")
 
             # used to flip x coords for other side
             side_mod = 1
@@ -87,52 +88,6 @@ class Agent(baseAgent):
             # The main decision loop
             return self.decisionLoop()
 
-        # # kick off!
-        # if self.wm.is_before_kick_off():
-        #     # player 9 takes the kick off
-        #     if self.wm.uniform_number == 9:
-        #         if self.wm.is_ball_kickable():
-        #             # kick with 100% extra effort at enemy goal
-        #             self.wm.kick_to(self.enemy_goal_pos, 1.0)
-        #         else:
-        #             # move towards ball
-        #             if self.wm.ball is not None:
-        #                 if (self.wm.ball.direction is not None and
-        #                     -7 <= self.wm.ball.direction <= 7):
-        #                     self.wm.ah.dash(50)
-        #             else:
-        #                 self.wm.turn_body_to_point((0, 0))
-
-        #         # turn to ball if we can see it, else face the enemy goal
-        #         if self.wm.ball is not None:
-        #             self.wm.turn_neck_to_object(self.wm.ball)
-
-        #             return
-
-        # # attack!
-        # else:
-            # # find the ball
-            # if self.wm.ball is None or self.wm.ball.direction is None:
-            #     self.wm.ah.turn(30)
-
-            #     return
-
-            # # kick it at the enemy goal
-            # if self.wm.is_ball_kickable():
-            #     self.wm.kick_to(self.enemy_goal_pos, 1.0)
-            #     return
-            # else:
-            #     # move towards ball
-            #     if -7 <= self.wm.ball.direction <= 7:
-            #         self.wm.ah.dash(65)
-            #     else:
-            #         # face ball
-            #         self.wm.ah.turn(self.wm.ball.direction / 2)
-
-            #         return
-
-
-
     # Heuristics begin
 
     # check if ball is close to self
@@ -146,18 +101,17 @@ class Agent(baseAgent):
     # check if path to target's coordinate is clear, by direction
     def is_clear(self, target_coords):
         q = self.wm.get_nearest_enemy()
-        if q == None:
+        if q is None:
             return False
         q_coords = self.wm.get_object_absolute_coords(q)
         qDir = self.wm.get_angle_to_point(q_coords)
         qDist = self.wm.get_distance_to_point(q_coords)
-        
+
         tDir = self.wm.get_angle_to_point(target_coords)
         tDist = self.wm.get_distance_to_point(target_coords)
 
         # the closest teammate is closer, or angle is clear
         return tDist < qDist or abs(qDir - tDir) > 20
-
 
     # Action decisions start
     # 
@@ -170,20 +124,6 @@ class Agent(baseAgent):
                 self.wm.ah.turn(self.wm.ball.direction / 2)
 
             return
-
-        # # kick it at the enemy goal
-        # if self.wm.is_ball_kickable():
-        #     self.wm.kick_to(self.enemy_goal_pos, 1.0)
-        #     return
-        # else:
-        #     # move towards ball
-        #     if -7 <= self.wm.ball.direction <= 7:
-        #         self.wm.ah.dash(65)
-        #     else:
-        #         # face ball
-        #         self.wm.ah.turn(self.wm.ball.direction / 2)
-
-        #     return
 
     # look around randomly
     def defaultaction(self):
@@ -232,15 +172,13 @@ class Agent(baseAgent):
 
                 return
 
-
-
     # condition for shooting to the goal
     def shall_shoot(self):
         return self.wm.is_ball_kickable() and self.goalpos_close() and self.is_clear(self.enemy_goal_pos)
 
     # do shoot
     def shoot(self):
-        print "shoot"
+        print("shoot")
         return self.wm.kick_to(self.enemy_goal_pos, 1.0)
 
     # condition for passing to the closest teammate
@@ -248,7 +186,7 @@ class Agent(baseAgent):
     def shall_pass(self):
         # self.defaultaction()
         p = self.wm.get_nearest_teammate()
-        if p == None:
+        if p is None:
             return False
         p_coords = self.wm.get_object_absolute_coords(p)
         pDistToGoal = self.wm.euclidean_distance(p_coords, self.enemy_goal_pos)
@@ -258,13 +196,13 @@ class Agent(baseAgent):
 
     # do passes
     def passes(self):
-        print "pass"
+        print("pass")
         p = self.wm.get_nearest_teammate()
-        if p == None:
+        if p is None:
             return False
         p_coords = self.wm.get_object_absolute_coords(p)
         dist = self.wm.get_distance_to_point(p_coords)
-        power_ratio = 2*dist/55.0
+        power_ratio = 2 * dist / 55.0
         # kick to closest teammate, power is scaled
         return self.wm.kick_to(p_coords, power_ratio)
 
@@ -273,12 +211,12 @@ class Agent(baseAgent):
         # find the ball
         # self.find_ball()
         # if self.wm.ball is None or self.wm.ball.direction is None:
-            # self.wm.ah.turn(30)
+        # self.wm.ah.turn(30)
         return self.wm.is_ball_kickable()
 
     # dribble: turn body, kick, then run towards ball
     def dribble(self):
-        print "dribbling"
+        print("dribbling")
         self.wm.kick_to(self.enemy_goal_pos, 1.0)
         self.wm.turn_body_to_point(self.enemy_goal_pos)
         self.wm.align_neck_with_body()
@@ -288,17 +226,18 @@ class Agent(baseAgent):
     # if enemy has the ball, and not too far move towards it
     def shall_move_to_ball(self):
         # while self.wm.ball is None:
-            # self.find_ball()
+        # self.find_ball()
         # self.wm.align_neck_with_body()
         return self.wm.is_ball_owned_by_enemy() and self.wm.ball.distance < 30
 
     # move to ball, if enemy owns it
     def move_to_ball(self):
-        print "move_to_ball"
+        print("move_to_ball")
         self.wm.ah.dash(60)
-        return 
+        return
 
-    # defensive, when ball isn't ours, and has entered our side of the field
+        # defensive, when ball isn't ours, and has entered our side of the field
+
     def shall_move_to_defend(self):
         # self.defaultaction()
         if self.wm.ball is not None or self.wm.ball.direction is not None:
@@ -308,12 +247,11 @@ class Agent(baseAgent):
 
     # defend
     def move_to_defend(self):
-        print "move_to_defend"
+        print("move_to_defend")
         q = self.wm.get_nearest_enemy()
-        if q == None:
+        if q is None:
             return False
         q_coords = self.wm.get_object_absolute_coords(q)
-        qDir = self.wm.get_angle_to_point(q_coords)
         qDistToOurGoal = self.wm.euclidean_distance(self.own_goal_pos, q_coords)
         # if close to the goal, aim at it
         if qDistToOurGoal < 55:
@@ -332,7 +270,7 @@ class Agent(baseAgent):
 
     # if our team has the ball n u r striker
     def move_to_enemy_goalpos(self):
-        print "move_to_enemy_goalpos"
+        print("move_to_enemy_goalpos")
         if self.wm.is_ball_kickable():
             # kick with 100% extra effort at enemy goal
             self.wm.kick_to(self.enemy_goal_pos, 1.0)
@@ -340,7 +278,6 @@ class Agent(baseAgent):
         self.wm.align_neck_with_body()
         self.wm.ah.dash(70)
         return
-
 
     def decisionLoop(self):
         try:
@@ -365,57 +302,3 @@ class Agent(baseAgent):
         except:
             # print "exceptions thrown, using fallback"
             self.defaultaction()
-        
-
-
-# by role: striker, defender
-# do the same preconds, but def on role diff actions
-# 1. 
-# shoot:
-# close enuf to ball and to self.enemy_goal_pos
-# if self.wm.ball.distance < 10 and self.get_distance_to_point(self.enemy_goal_pos) < 20 and self.is_ball_kickable():
-
-
-
-# shoot
-# pass
-# move
-
-# striker:
-# 
-
-# strategy: ordered
-# 1. close to ball: grab, carry toward goal, pass or shoot
-# 2. ain't, move to enemy (if enemy has ball), goal (if we have ball n jersey num), ball (if enemy n closest, or jersey num)
-# 3. 
-
-# conditions shd be:
-# shoot: ball aint none, ball kickable, close to goalpos
-
-
-# Enum fields
-# self.get_distance_to_point(self.enemy_goal_pos)
-# self.get_angle_to_point(self.enemy_goal_pos)
-# self.wm.ball.distance
-# self.wm.ball.direction
-# p = self.get_nearest_teammate()
-# p.distance
-# p.direction
-# q = self.get_neatest_enemy()
-# q.distance
-# q.direction
-# self.is_ball_owned_by_us
-# self.is_ball_owned_by_enemy
-# self.is_ball_kickable
-
-# actions and their triggers
-# shoot
-# pass
-# move
-
-# print dir(WorldModel(''))
-# print dir(Agent())
-
-# va = 1
-# print None or va[0]
-# print random.randrange(-30,30)

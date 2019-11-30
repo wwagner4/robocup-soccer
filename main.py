@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
-import threading
-import time
-import random
-import sys
 import multiprocessing as mp
-import os
+import sys
+import time
 
-# import agent types (positions)
-from aigent.soccerpy.agent import Agent as A0
 # strikers
 from aigent.agent_1 import Agent as A1
 # defenders
@@ -20,19 +15,19 @@ from aigent.agent_3 import Agent as A3
 TEAM_NAME = 'Keng'
 NUM_PLAYERS = 11
 
-
 if __name__ == "__main__":
 
     # return type of agent: midfield, striker etc.
     def agent_type(position):
-    	return {
+        return {
             2: A2,
             3: A3,
             4: A2,
             6: A2,
             7: A2,
-    		8: A2,
-    	}.get(position, A1)
+            8: A2,
+        }.get(position, A1)
+
 
     # spawn an agent of team_name, with position
     def spawn_agent(team_name, position):
@@ -49,9 +44,10 @@ if __name__ == "__main__":
             # we sleep for a good while since we can only exit if terminated.
             time.sleep(1)
 
-    # spawn all agents as seperate processes for maximum processing efficiency
+
+    # spawn all agents as separate processes for maximum processing efficiency
     agentthreads = []
-    for position in range(1, NUM_PLAYERS+1):
+    for position in range(1, NUM_PLAYERS + 1):
         print(f"  Spawning agent {position}...")
 
         at = mp.Process(target=spawn_agent, args=(TEAM_NAME, position))
@@ -83,4 +79,3 @@ if __name__ == "__main__":
         print()
         print("Exiting.")
         sys.exit()
-

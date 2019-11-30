@@ -2,13 +2,14 @@
 
 import threading
 import time
-import random
 
+import handler
 import sock
 import sp_exceptions
-import handler
 from world_model import WorldModel
 
+
+# noinspection PyAttributeOutsideInit
 class Agent:
     def __init__(self):
         # whether we're connected to a server yet or not
@@ -28,7 +29,7 @@ class Agent:
         self.__parsing = False
         self.__msg_thread = None
 
-        self.__thinking = False # think thread and control variable
+        self.__thinking = False  # think thread and control variable
         self.__think_thread = None
 
         # whether we should run the think method
@@ -40,7 +41,6 @@ class Agent:
         # adding goal post markers
         self.enemy_goal_pos = None
         self.own_goal_pos = None
-
 
     def connect(self, host, port, teamname, version=11):
         """
@@ -68,10 +68,10 @@ class Agent:
         self.msg_handler = handler.MessageHandler(self.wm)
 
         # set up our threaded message receiving system
-        self.__parsing = True # tell thread that we're currently running
+        self.__parsing = True  # tell thread that we're currently running
         self.__msg_thread = threading.Thread(target=self.__message_loop,
-                name="message_loop")
-        self.__msg_thread.daemon = True # dies when parent thread dies
+                                             name="message_loop")
+        self.__msg_thread.daemon = True  # dies when parent thread dies
 
         # start processing received messages. this will catch the initial server
         # response and all subsequent communication.
@@ -92,7 +92,7 @@ class Agent:
         # to play a game of robo-soccer.
         self.__thinking = False
         self.__think_thread = threading.Thread(target=self.__think_loop,
-                name="think_loop")
+                                               name="think_loop")
         self.__think_thread.daemon = True
 
         # set connected state.  done last to prevent state inconsistency if
@@ -116,7 +116,7 @@ class Agent:
             raise sp_exceptions.AgentAlreadyPlayingError(
                 "Agent is already playing.")
 
-        # run the method that sets up the agent's persistant variables
+        # run the method that sets up the agent's persistent variables
         self.setup_environment()
 
         # tell the thread that it should be running, then start it
@@ -150,7 +150,7 @@ class Agent:
         # tell the server that we're quitting
         self.__sock.send("(bye)")
 
-        # tell our threads to join, but only wait breifly for them to do so.
+        # tell our threads to join, but only wait briefly for them to do so.
         # don't join them if they haven't been started (this can happen if
         # disconnect is called very quickly after connect).
         if self.__msg_thread.is_alive():
@@ -271,7 +271,6 @@ class Agent:
             return
 
         # determine the enemy goal position
-        goal_pos = None
         if self.wm.side == WorldModel.SIDE_R:
             goal_pos = (-55, 0)
         else:
@@ -320,63 +319,3 @@ class Agent:
                     self.wm.ah.turn(self.wm.ball.direction / 2)
 
                 return
-
-
-# if __name__ == "__main__":
-#     import sys
-#     import multiprocessing as mp
-
-#     # enforce corrent number of arguments, print help otherwise
-#     if len(sys.argv) < 3:
-#         print "args: ./agent.py <team_name> <num_players>"
-#         sys.exit()
-
-#     def spawn_agent(team_name):
-#         """
-#         Used to run an agent in a seperate physical process.
-#         """
-
-#         a = Agent()
-#         a.connect("localhost", 6000, team_name)
-#         a.play()
-
-#         # we wait until we're killed
-#         while 1:
-#             # we sleep for a good while since we can only exit if terminated.
-#             time.sleep(1)
-
-#     # spawn all agents as seperate processes for maximum processing efficiency
-#     agentthreads = []
-#     for agent in xrange(min(11, int(sys.argv[2]))):
-#         print "  Spawning agent %d..." % agent
-
-#         at = mp.Process(target=spawn_agent, args=(sys.argv[1],))
-#         at.daemon = True
-#         at.start()
-
-#         agentthreads.append(at)
-
-#     print "Spawned %d agents." % len(agentthreads)
-#     print
-#     print "Playing soccer..."
-
-#     # wait until killed to terminate agent processes
-#     try:
-#         while 1:
-#             time.sleep(0.05)
-#     except KeyboardInterrupt:
-#         print
-#         print "Killing agent threads..."
-
-#         # terminate all agent processes
-#         count = 0
-#         for at in agentthreads:
-#             print "  Terminating agent %d..." % count
-#             at.terminate()
-#             count += 1
-#         print "Killed %d agent threads." % (count - 1)
-
-#         print
-#         print "Exiting."
-#         sys.exit()
-

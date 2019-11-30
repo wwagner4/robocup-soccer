@@ -1,9 +1,9 @@
 import collections
-import Queue as queue
+import queue
 
+import game_object
 import message_parser
 import sp_exceptions
-import game_object
 from world_model import WorldModel
 
 # should we print messages received from the server?
@@ -11,6 +11,7 @@ PRINT_SERVER_MESSAGES = False
 
 # should we print commands sent to the server?
 PRINT_SENT_COMMANDS = False
+
 
 class MessageHandler:
     """
@@ -39,7 +40,7 @@ class MessageHandler:
         parsed = message_parser.parse(msg)
 
         if PRINT_SERVER_MESSAGES:
-            print parsed[0] + ":", parsed[1:], "\n"
+            print(f"{parsed[0]}:{parsed[1:]}\n")
 
         # this is the name of the function that should be used to handle
         # this message type.  we pull it from this object dynamically to
@@ -161,8 +162,8 @@ class MessageHandler:
                 # TODO: calculate player's speed!
 
                 new_players.append(game_object.Player(distance, direction,
-                    dist_change, dir_change, speed, teamname, side,
-                    uniform_number, body_dir, neck_dir))
+                                                      dist_change, dir_change, speed, teamname, side,
+                                                      uniform_number, body_dir, neck_dir))
 
             # parse goals
             elif name[0] == 'g':
@@ -186,7 +187,7 @@ class MessageHandler:
             elif name[0] == 'b':
                 # TODO: handle speed!
                 new_ball = game_object.Ball(distance, direction, dist_change,
-                        dir_change, None)
+                                            dir_change, None)
 
             # object very near to but not viewable by the player are 'blank'
 
@@ -205,25 +206,25 @@ class MessageHandler:
             # an out-of-view player
             elif name[0] == 'P':
                 new_players.append(game_object.Player(None, None, None, None,
-                    None, None, None, None, None, None))
+                                                      None, None, None, None, None, None))
 
             # an unhandled object type
             else:
-                raise ObjectTypeError("Unknown object: '" + str(obj) + "'")
+                raise TypeError("Unknown object: '" + str(obj) + "'")
 
         # tell the WorldModel to update any internal variables based on the
         # newly gleaned information.
         self.wm.process_new_info(new_ball, new_flags, new_goals, new_players,
-                new_lines)
+                                 new_lines)
 
     def _handle_hear(self, msg):
         """
         Parses audible information and turns it into useful information.
         """
 
-        time_recvd = msg[1] # server cycle when message was heard
-        sender = msg[2] # name (or direction) of who sent the message
-        message = msg[3] # message string
+        time_recvd = msg[1]  # server cycle when message was heard
+        sender = msg[2]  # name (or direction) of who sent the message
+        message = msg[3]  # message string
 
         # ignore messages sent by self (NOTE: would anybody really want these?)
         if sender == "self":
@@ -341,7 +342,7 @@ class MessageHandler:
         """
         Stores server parameter information.
         """
-        
+
         # each list is two items: a value name and its value.  we add them all
         # to the ServerParameters class inside WorldModel programmatically.
         for param in msg[1:]:
@@ -349,7 +350,7 @@ class MessageHandler:
             # by setting the attribute programmatically.
             if len(param) != 2:
                 continue
-            
+
             # the parameter and its value
             key = param[0]
             value = param[1]
@@ -359,7 +360,7 @@ class MessageHandler:
                 setattr(self.wm.server_parameters, key, value)
             else:
                 raise AttributeError("Couldn't find a matching parameter in "
-                        "ServerParameters class: '%s'" % key)
+                                     "ServerParameters class: '%s'" % key)
 
     def _handle_init(self, msg):
         """
@@ -390,8 +391,10 @@ class MessageHandler:
         """
 
         m = "Server issued a warning: '%s'" % msg[1]
-        print sp_exceptions.SoccerServerWarning(m)
+        print(sp_exceptions.SoccerServerWarning(m))
 
+
+# noinspection PyCallByClass
 class ActionHandler:
     """
     Provides facilities for sending commands to the soccer server.  Contains all
@@ -422,7 +425,7 @@ class ActionHandler:
 
         def __init__(self):
             raise NotImplementedError("Can't instantiate a CommandType, access "
-                    "its members through ActionHandler instead.")
+                                      "its members through ActionHandler instead.")
 
     # a command for our queue containing an id and command text
     Command = collections.namedtuple("Command", "cmd_type text")
@@ -459,7 +462,7 @@ class ActionHandler:
             # send other commands immediately
             else:
                 if PRINT_SENT_COMMANDS:
-                    print "sent:", cmd.text, "\n"
+                    print(f"sent:{cmd.text}\n")
 
                 self.sock.send(cmd.text)
 
@@ -469,7 +472,7 @@ class ActionHandler:
         # send the saved primary command, if there was one
         if primary_cmd is not None:
             if PRINT_SENT_COMMANDS:
-                print "sent:", primary_cmd.text, "\n"
+                print(f"sent:{primary_cmd.text}\n")
 
             self.sock.send(primary_cmd.text)
 
@@ -574,4 +577,3 @@ class ActionHandler:
         cmd = ActionHandler.Command(cmd_type, msg)
 
         self.q.put(cmd)
-
