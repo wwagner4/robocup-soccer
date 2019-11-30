@@ -71,7 +71,7 @@ if __name__ == "__main__":
         # terminate all agent processes
         count = 0
         for at in agentthreads:
-            print("  Terminating agent {count}...")
+            print(f"  Terminating agent {count}...")
             at.terminate()
             count += 1
         print("Killed {(count - 1)} agent threads.")
