@@ -2,8 +2,8 @@
 
 # The defender agent
 
-from agent import Agent as baseAgent
-from world_model import WorldModel
+from aigent.soccerpy.agent import Agent as baseAgent
+from aigent.soccerpy.world_model import WorldModel
 
 
 # methods from actionHandler are

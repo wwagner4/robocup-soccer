@@ -3,10 +3,10 @@
 import threading
 import time
 
-import handler
-import sock
-import sp_exceptions
-from world_model import WorldModel
+import aigent.soccerpy.handler as handler
+import aigent.soccerpy.sock as sock
+import aigent.soccerpy.sp_exceptions as sp_exceptions
+from aigent.soccerpy.world_model import WorldModel
 
 
 # noinspection PyAttributeOutsideInit

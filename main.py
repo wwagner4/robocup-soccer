@@ -3,6 +3,7 @@
 import multiprocessing as mp
 import sys
 import time
+import fire
 
 # strikers
 from aigent.agent_1 import Agent as A1
@@ -11,12 +12,10 @@ from aigent.agent_2 import Agent as A2
 # goalie
 from aigent.agent_3 import Agent as A3
 
-# set team
-TEAM_NAME = 'Keng'
-NUM_PLAYERS = 11
 
-if __name__ == "__main__":
-
+def run(team_name: str, number_of_players: int):
+    print(f"Running team: '{team_name}' with {number_of_players} players")
+    
     # return type of agent: midfield, striker etc.
     def agent_type(position):
         return {
@@ -27,7 +26,6 @@ if __name__ == "__main__":
             7: A2,
             8: A2,
         }.get(position, A1)
-
 
     # spawn an agent of team_name, with position
     def spawn_agent(team_name, position):
@@ -44,13 +42,12 @@ if __name__ == "__main__":
             # we sleep for a good while since we can only exit if terminated.
             time.sleep(1)
 
-
     # spawn all agents as separate processes for maximum processing efficiency
     agentthreads = []
-    for position in range(1, NUM_PLAYERS + 1):
+    for position in range(1, number_of_players + 1):
         print(f"  Spawning agent {position}...")
 
-        at = mp.Process(target=spawn_agent, args=(TEAM_NAME, position))
+        at = mp.Process(target=spawn_agent, args=(team_name, position))
         at.daemon = True
         at.start()
 
@@ -79,3 +76,18 @@ if __name__ == "__main__":
         print()
         print("Exiting.")
         sys.exit()
+
+
+class Runner:
+
+    @staticmethod
+    def run_a():
+        run("A", 11)
+
+    @staticmethod
+    def run_b():
+        run("B", 11)
+
+
+if __name__ == '__main__':
+    fire.Fire(Runner)

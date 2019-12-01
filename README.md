@@ -107,3 +107,7 @@ game ends, train autoencoder w/ all actions, then train real
 plug in the net, repeat above for evolution
 
 where to incorp action success: reward n cost? in selection of data, by evolution n natural selection
+
+## Docker
+- Start server: docker run -it --rm -p 6000:6000 orangefoil/rcssserver
+- Start monitor: rcssmonitor

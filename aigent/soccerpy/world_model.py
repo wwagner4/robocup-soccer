@@ -1,7 +1,7 @@
 import math
 import random
 
-import game_object
+import aigent.soccerpy.game_object as  game_object
 
 
 # noinspection PyTypeChecker
