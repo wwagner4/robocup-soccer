@@ -13,7 +13,6 @@ from aigent.agent_3 import Agent as A3
 
 
 def run(team_name: str, number_of_players: int):
-    print(f"Running team: '{team_name}' with {number_of_players} players")
 
     # return type of agent: midfield, striker etc.
     def agent_type(position):
@@ -44,17 +43,12 @@ def run(team_name: str, number_of_players: int):
     # spawn all agents as separate processes for maximum processing efficiency
     agentthreads = []
     for position in range(1, number_of_players + 1):
-        print(f"  Spawning agent {position}...")
-
         at = mp.Process(target=spawn_agent, args=(team_name, position))
         at.daemon = True
         at.start()
-
         agentthreads.append(at)
 
-    print(f"Spawned {len(agentthreads)} agents.")
-    print()
-    print("Playing soccer...")
+    print(f"Team {team_name} is playing soccer with {len(agentthreads)} agents...")
 
     # wait until killed to terminate agent processes
     try:
